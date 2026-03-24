@@ -134,6 +134,7 @@ chats: list[chat] = []
 users: list[persona] = []
 last_captcha = 0
 captchas: dict[int, str] = {}
+signatories: dict[str, float] = {} #str = ip, float = time of last guestbook addition
 
 
 def init_guestbook(path: str) -> None:
