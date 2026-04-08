@@ -234,7 +234,7 @@ get_guestbook()
 
 @app.route("/.well-known/discord", methods=["GET"])
 def discord():
-    return "dh=b9fc5374b018e3035c5e1098b8e188ade7906f32"
+    return "dh=fbeb7eb9df795e0918046a4d8102679bce8525cd"
 
 
 @app.route("/", methods=["GET"])
