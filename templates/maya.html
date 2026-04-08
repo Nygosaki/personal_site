@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/7.css" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://files.catbox.moe/fawl7f.ico"
+    />
+    <!--
+    Thanks to 7.css, amazing!
+    https://khang-nd.github.io/7.css/
+    -->
+    <title>mesna.cz</title>
+    <style>
+      a {
+        color: black;
+      }
+      a:hover {
+        color: black;
+        text-decoration-line: none;
+      }
+      .ccss {
+        color: blue;
+      }
+      .ccss:hover {
+        text-decoration-line: underline;
+        color: blue;
+      }
+      .abcd {
+        max-width: 100%;
+        min-height: 90%;
+      }
+      body {
+        font:
+          9pt "Segoe UI",
+          "SegoeUI",
+          "Noto Sans",
+          sans-serif;
+      }
+      .inln {
+        max-height: 1%;
+      }
+      .center {
+        margin: 5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="https://www.mesna.cz/">
+      <div class="window active abcd" style="max-width: fit-content"></div>
+      <div class="title-bar">
+        <div class="title-bar-text">mesna.cz - Internet explorer</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize"></button>
+          <button aria-label="Restore"></button>
+          <button aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body has-space">
+        <p>
+          Hiya!<br />
+          The name's Ema!<br />
+          I see you're on Maya's site. Hope you're enjoying you're time there!
+          <br />
+          If you wanna go to a less... modern site, click here! I swear, I DON'T
+          use any JS! <br />
+          I'm also a puppygirl. Please, please sign my guestbook. Or hop into my
+          dead chatroom!
+        </p>
+        <img
+          style="max-width: 200px"
+          src="https://www.mesna.cz/images?img=https://files.catbox.moe/p4k9iw.png"
+        />
+      </div>
+      <div class="status-bar">
+        <p class="status-bar-field">{{curryear}} - Huewhg</p>
+        <p class="status-bar-field">{{year}}</p>
+        <p class="status-bar-field">
+          Made with
+          <a class="ccss" href="https://khang-nd.github.io/7.css/">7.css</a>
+        </p>
+        <p class="status-bar-field">
+          CPU Usage: {{cpu}}%
+          <!--<div
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="80"
+        >
+          <div style="width: {{cpu}}%"></div>
+        </div>-->
+        </p>
+      </div>
+    </a>
+  </body>
+</html>

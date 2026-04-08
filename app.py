@@ -258,7 +258,26 @@ def main():
         **context,
     )
 
-
+@app.route("/maya", methods=["GET"])
+def maya():
+    global last_cpu
+    global last_accessed
+    if time.time() - last_accessed >= CPU_INTERVAL:
+        last_cpu = psutil.cpu_percent(interval=0.5)
+        last_accessed = time.time()
+    CPU = last_cpu
+    to = datetime.today()
+    year_percentage = datetime.now().timetuple().tm_yday / 365 * 100
+    context = {
+        "year": f"Today's date is the {to.day}. day of the {to.month}. month of the year {to.year}! Info as of {datetime.fromtimestamp(last_accessed).time()}.",
+        "year_percentage": year_percentage,
+        "cpu": last_cpu,
+        "curryear": datetime.fromtimestamp(last_accessed).year,
+    }
+    return render_template(
+        "maya.html",
+        **context,
+    )
 @app.route("/images", methods=["GET"])
 def img():
     headers = {
