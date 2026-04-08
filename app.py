@@ -23,6 +23,7 @@ from captcha import (
     generate_captcha_from_text,
 )
 import io
+import sys
 
 
 @dataclass
@@ -122,6 +123,8 @@ cwd = Path.cwd()
 print(cwd)
 GUESTBOOK_PATH = str(cwd.parent) + "/disk/guestbook.txt"
 CHATROOM_PATH = str(cwd.parent) + "/disk/chatroom.txt"
+UAP_PATH = "static/UAP"
+UAPS: list[str] = []
 MAX_SCROLLBACK = 30
 app = Flask(__name__)
 last_accessed = time.time()
@@ -134,7 +137,12 @@ chats: list[chat] = []
 users: list[persona] = []
 last_captcha = 0
 captchas: dict[int, str] = {}
-signatories: dict[str, float] = {} #str = ip, float = time of last guestbook addition
+signatories: dict[str, float] = {}  # str = ip, float = time of last guestbook addition
+for dirpath, dirnames, filenames in os.walk(UAP_PATH):
+    UAPS.extend(filenames)
+    break
+for i in range(len(UAPS)):
+    UAPS[i] = f"{UAP_PATH}/{UAPS[i]}"
 
 
 def init_guestbook(path: str) -> None:
@@ -184,7 +192,6 @@ def get_guestbook() -> list[signature]:
         conts = stripped[4].replace("_%", "<br />")
         if nh3.is_html(conts):
             conts = cln.clean(conts)
-        print(stripped)
         sigs.append(
             signature(
                 stripped[0],
@@ -219,7 +226,6 @@ def get_random_captcha(
     img_byte_arr = io.BytesIO()
     img2.save(img_byte_arr, format="PNG")
     img_byte_arr = img_byte_arr.getvalue()
-    print(img_byte_arr)
     return img_byte_arr, ch
 
 
@@ -228,19 +234,16 @@ get_guestbook()
 
 @app.route("/.well-known/discord", methods=["GET"])
 def discord():
-    return "dh=54d5e9b2d21831feef81f3a43158e5934bca864b"
+    return "dh=b9fc5374b018e3035c5e1098b8e188ade7906f32"
 
 
 @app.route("/", methods=["GET"])
 def main():
     global last_cpu
     global last_accessed
-    print(time.time() - last_accessed)
     if time.time() - last_accessed >= CPU_INTERVAL:
         last_cpu = psutil.cpu_percent(interval=0.5)
         last_accessed = time.time()
-        print("up")
-
     CPU = last_cpu
     to = datetime.today()
     year_percentage = datetime.now().timetuple().tm_yday / 365 * 100
@@ -258,7 +261,6 @@ def main():
 
 @app.route("/images", methods=["GET"])
 def img():
-    # print(request.headers)
     headers = {
         "Connection": "keep-alive",
         "Pragma": "no-cache",
@@ -277,12 +279,20 @@ def img():
         "Accept-Encoding": "gzip, deflate, br, zstd",
         "Accept-Language": "en-US,en;q=0.9,cs-CZ;q=0.8,cs;q=0.7",
     }
-
-    r = requests.get(request.args["img"], headers=headers)
+    get_random:bool = False
+    path = request.args["img"]
+    if path:
+        r = requests.get(path, headers=headers)
     # print(r.content)
     # print(r.status_code)
-    if not r.status_code == 200:
-        return 404
+        if not r.status_code == 200:
+            get_random = True
+    else:
+        get_random = True
+    if get_random:
+        print("No image!")
+        with open(random.choice(UAPS), "rb") as file_t:
+            return file_t
     return r.content
 
 
@@ -298,7 +308,6 @@ def chatroom():
         try:
             persona = users[int(uid)]
         except:
-            print("corrupt!")
             persona = None
             corrupt_persona = True
     else:
@@ -309,7 +318,6 @@ def chatroom():
     if time.time() - last_accessed >= CPU_INTERVAL:
         last_cpu = psutil.cpu_percent(interval=0.5)
         last_accessed = time.time()
-        print("up")
     CPU = last_cpu
     to = datetime.today()
     year_percentage = datetime.now().timetuple().tm_yday / 365 * 100
@@ -392,6 +400,13 @@ def links():
 @app.route("/c", methods=["GET"])
 def c():
     i = generate_captcha_from_text(captchas[int(request.args["c"])], Line_Chars)
+    if len(captchas) > 50:
+        min = 100000000
+        for c in captchas.keys():
+            if c < min:
+                min = c
+        challenges.pop(captchas[min])
+    print(f"Len: {len(captchas)}")
     img_byte_arr = io.BytesIO()
     i.save(img_byte_arr, format="PNG")
     img_byte_arr = img_byte_arr.getvalue()
@@ -447,9 +462,7 @@ def guestbook_add():
         return redirect("/guestbook")
     try:
         captcha_id = request.form.get("captcha_id", None)
-        print(captchas)
-        print(challenges[captchas[int(captcha_id)]])
-        
+
         if (
             not request.form.get("captcha", None).lower()
             in challenges[captchas[int(captcha_id)]]
@@ -485,14 +498,12 @@ def persona_set():
     name = ""
     color = ""
     image = ""
-    print(request.form)
     try:
         name = request.form.get("name", None)
     except:
         return redirect("/chatroom")
     try:
         color = request.form.get("color", None)
-        print(color)
     except:
         return redirect("/chatroom")
     try:
@@ -520,17 +531,14 @@ def chatroom_add():
         try:
             persona = users[int(uid)]
         except:
-            print("corrupt!")
             persona = None
             corrupt_persona = True
     if not corrupt_persona:
         msg = ""
-        print(request.form)
         try:
             msg = request.form.get("mesasge", None)
         except:
             return redirect("/chatroom")
-        print(msg)
         chats.append(chat(int(uid), msg))
     resp = redirect("/chatroom")
     if corrupt_persona:
